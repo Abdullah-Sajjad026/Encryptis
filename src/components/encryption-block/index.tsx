@@ -28,7 +28,7 @@ export default function EncryptionBlock() {
   const [toEncryptFile, setToEncryptFile] = useState<File | null>(null)
   const [encryptedFile, setEncryptedFile] = useState<Blob | null>(null)
 
-  const [selectKeySize, setSelectKeySize] = useState<string>('256');
+  const [selectKeySize, setSelectKeySize] = useState<string>('128');
 
   const encrypt = () => {
     // with proper error handling, react-hot-toast and loading states etc
@@ -99,8 +99,8 @@ export default function EncryptionBlock() {
               />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="92">92 bits</SelectItem>
               <SelectItem value="128">128 bits</SelectItem>
+              <SelectItem value="192">192 bits</SelectItem>
               <SelectItem value="256">256 bits</SelectItem>
             </SelectContent>
           </Select>
