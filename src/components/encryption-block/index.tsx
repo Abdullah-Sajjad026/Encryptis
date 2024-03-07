@@ -3,10 +3,10 @@ import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {useState} from "react";
 import toast from "react-hot-toast";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
 
 
-const encryptFile = async (file: File, keySize: number = 256) => {
-
+const encryptFile = async (file: File, keySize: string = '256') => {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -21,13 +21,14 @@ const encryptFile = async (file: File, keySize: number = 256) => {
     )
   }
   // Create a blob from the response data
- return await response.blob();
+  return await response.blob();
 }
-
 
 export default function EncryptionBlock() {
   const [toEncryptFile, setToEncryptFile] = useState<File | null>(null)
   const [encryptedFile, setEncryptedFile] = useState<Blob | null>(null)
+
+  const [selectKeySize, setSelectKeySize] = useState<string>('256');
 
   const encrypt = () => {
     // with proper error handling, react-hot-toast and loading states etc
@@ -36,7 +37,7 @@ export default function EncryptionBlock() {
 
     try {
       toast.promise(
-        encryptFile(toEncryptFile),
+        encryptFile(toEncryptFile, selectKeySize),
         {
           loading: "Encrypting file...",
           success: (data) => {
@@ -69,19 +70,41 @@ export default function EncryptionBlock() {
         <Input accept="*" id="file-encrypt" type="file"
                onChange={(event) => {
                  const file = event.target.files?.[0]
-                 if (file){
-                    // 500 mb max
-                   if(file.size > 500 * 1024 * 1024) {
+                 if (file) {
+                   // 500 mb max
+                   if (file.size > 500 * 1024 * 1024) {
                      toast.error(`Max File Size: 500Mb`);
                      setEncryptedFile(null);
                      setToEncryptFile(null)
                      return;
                    }
-                    setEncryptedFile(null);
-                    setToEncryptFile(file)
-                  }
+                   setEncryptedFile(null);
+                   setToEncryptFile(file)
+                 }
                }}
         />
+        <div className="space-y-2">
+          <Label>Encryption Key Size</Label>
+          <Select
+            onValueChange={
+              (value) => setSelectKeySize(value)
+            }
+            defaultValue={selectKeySize}
+          >
+            <SelectTrigger>
+              <SelectValue
+                placeholder={
+                  "Select Key Size"
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="92">92 bits</SelectItem>
+              <SelectItem value="128">128 bits</SelectItem>
+              <SelectItem value="256">256 bits</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <Button
         className="w-full"
