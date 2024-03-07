@@ -3,29 +3,24 @@ import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button"
 import {useState} from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 
 const decryptFile = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`http://localhost:8080/api/v1/decrypt`, {
-    method: 'POST',
-    body: formData,
-  })
+  const response = await axios.post('http://localhost:8080/api/v1/decrypt', formData, {
+    responseType: 'blob',
+  });
 
-  if (!response.ok) {
-    throw new Error('Failed to decrypt file')
-  }
-
-  // Create a blob from the response data
-  return await response.blob();
+  return response.data;
 }
 
 
 export default function DecryptionBlock() {
   const [toDecryptFile, setToDecryptFile] = useState<File | null>(null)
-  const [decryptedFile, setDecryptedFile] = useState<Blob | null>(null)
+  const [decryptedFile, setDecryptedFile] = useState<File | Blob | null>(null)
 
   const decrypt = () => {
     // with proper error handling, react-hot-toast and loading states etc
@@ -86,7 +81,7 @@ export default function DecryptionBlock() {
             const url = URL.createObjectURL(decryptedFile)
             const a = document.createElement('a')
             a.href = url
-            a.download = "DecryptedFile.zip"
+            a.download = `decrypted-${new Date().getTime()}.${decryptedFile.type.split('/')[1]}`
             a.click()
           }}>
             Download Decrypted File

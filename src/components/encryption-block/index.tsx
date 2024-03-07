@@ -16,17 +16,16 @@ const encryptFile = async (file: File, keySize: number = 256) => {
   })
 
   if (!response.ok) {
-    throw new Error('Failed to encrypt file')
+    throw new Error(
+      `Failed to encrypt file: ${response.status} ${response.statusText}`
+    )
   }
-
   // Create a blob from the response data
  return await response.blob();
-
 }
 
 
 export default function EncryptionBlock() {
-
   const [toEncryptFile, setToEncryptFile] = useState<File | null>(null)
   const [encryptedFile, setEncryptedFile] = useState<Blob | null>(null)
 
@@ -71,10 +70,16 @@ export default function EncryptionBlock() {
                onChange={(event) => {
                  const file = event.target.files?.[0]
                  if (file){
+                    // 500 mb max
+                   if(file.size > 500 * 1024 * 1024) {
+                     toast.error(`Max File Size: 500Mb`);
+                     setEncryptedFile(null);
+                     setToEncryptFile(null)
+                     return;
+                   }
                     setEncryptedFile(null);
-                   setToEncryptFile(file)
+                    setToEncryptFile(file)
                   }
-
                }}
         />
       </div>
